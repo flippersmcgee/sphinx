@@ -1,6 +1,9 @@
 version = 1
 
-test_patterns = ["tests/test_*"]
+test_patterns = [
+    "tests/test_*",
+    "sphinx/testing*"
+]
 
 [[analyzers]]
 name = "python"
