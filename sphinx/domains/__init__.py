@@ -242,11 +242,7 @@ class Domain:
     def add_object_type(self, name: str, objtype: ObjType) -> None:
         """Add an object type."""
         self.object_types[name] = objtype
-        if objtype.roles:
-            self._type2role[name] = objtype.roles[0]
-        else:
-            self._type2role[name] = ''
-
+        self._type2role[name] = objtype.roles[0] if objtype.roles else ''
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 

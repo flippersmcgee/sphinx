@@ -34,32 +34,34 @@ class MetadataCollector(EnvironmentCollector):
 
         Keep processing minimal -- just return what docutils says.
         """
-        if len(doctree) > 0 and isinstance(doctree[0], nodes.docinfo):
-            md = app.env.metadata[app.env.docname]
-            for node in doctree[0]:
-                # nodes are multiply inherited...
-                if isinstance(node, nodes.authors):
-                    authors = cast(List[nodes.author], node)
-                    md['authors'] = [author.astext() for author in authors]
-                elif isinstance(node, nodes.field):
-                    assert len(node) == 2
-                    field_name = cast(nodes.field_name, node[0])
-                    field_body = cast(nodes.field_body, node[1])
-                    md[field_name.astext()] = field_body.astext()
-                elif isinstance(node, nodes.TextElement):
-                    # other children must be TextElement
-                    # see: http://docutils.sourceforge.net/docs/ref/doctree.html#bibliographic-elements  # NOQA
-                    md[node.__class__.__name__] = node.astext()
+        if len(doctree) <= 0 or not isinstance(doctree[0], nodes.docinfo):
+            return
 
-            for name, value in md.items():
-                if name in ('tocdepth',):
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        value = 0
-                    md[name] = value
+        md = app.env.metadata[app.env.docname]
+        for node in doctree[0]:
+            # nodes are multiply inherited...
+            if isinstance(node, nodes.authors):
+                authors = cast(List[nodes.author], node)
+                md['authors'] = [author.astext() for author in authors]
+            elif isinstance(node, nodes.field):
+                assert len(node) == 2
+                field_name = cast(nodes.field_name, node[0])
+                field_body = cast(nodes.field_body, node[1])
+                md[field_name.astext()] = field_body.astext()
+            elif isinstance(node, nodes.TextElement):
+                # other children must be TextElement
+                # see: http://docutils.sourceforge.net/docs/ref/doctree.html#bibliographic-elements  # NOQA
+                md[node.__class__.__name__] = node.astext()
 
-            doctree.pop(0)
+        for name, value in md.items():
+            if name in ('tocdepth',):
+                try:
+                    value = int(value)
+                except ValueError:
+                    value = 0
+                md[name] = value
+
+        doctree.pop(0)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

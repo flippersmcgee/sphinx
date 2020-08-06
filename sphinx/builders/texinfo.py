@@ -164,8 +164,6 @@ class TexinfoBuilder(Builder):
                     newnodes.append(nodes.emphasis(title, title))
                     newnodes.append(nodes.Text(')', ')'))
                     break
-            else:
-                pass
             pendingnode.replace_self(newnodes)
         return largetree
 

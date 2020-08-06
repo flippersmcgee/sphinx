@@ -51,9 +51,10 @@ class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_image_types == []:
-            return False
-        elif self.app.builder.supported_remote_images:
+        if (
+            self.app.builder.supported_image_types == []
+            or self.app.builder.supported_remote_images
+        ):
             return False
         else:
             return '://' in node['uri']
@@ -117,9 +118,10 @@ class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_remote_images == []:
-            return False
-        elif self.app.builder.supported_data_uri_images is True:
+        if (
+            self.app.builder.supported_remote_images == []
+            or self.app.builder.supported_data_uri_images is True
+        ):
             return False
         else:
             return node['uri'].startswith('data:')
@@ -205,10 +207,7 @@ class ImageConverter(BaseImageConverter):
             return False
         else:
             rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(rule)
 
     def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
         for candidate in self.guess_mimetypes(node):

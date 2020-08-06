@@ -1178,7 +1178,7 @@ not found in `{test}`
         def __init__(self, role, root, contents):
             self.name = role
             self.classes = classes(role, root)
-            self.content_classes = dict()
+            self.content_classes = {}
             for tag in contents:
                 self.content_classes[tag] = classes(role, tag)
 

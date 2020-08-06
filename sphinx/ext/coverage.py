@@ -133,10 +133,7 @@ class CoverageBuilder(Builder):
                 op.write('\n')
 
     def ignore_pyobj(self, full_name: str) -> bool:
-        for exp in self.py_ignorexps:
-            if exp.search(full_name):
-                return True
-        return False
+        return any(exp.search(full_name) for exp in self.py_ignorexps)
 
     def build_py_coverage(self) -> None:
         objects = self.env.domaindata['py']['objects']
@@ -145,11 +142,7 @@ class CoverageBuilder(Builder):
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
         for mod_name in modules:
-            ignore = False
-            for exp in self.mod_ignorexps:
-                if exp.match(mod_name):
-                    ignore = True
-                    break
+            ignore = any(exp.match(mod_name) for exp in self.mod_ignorexps)
             if ignore or self.ignore_pyobj(mod_name):
                 continue
 
@@ -231,11 +224,11 @@ class CoverageBuilder(Builder):
 
     def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
-        failed = []
         with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
             keys = sorted(self.py_undoc.keys())
+            failed = []
             for name in keys:
                 undoc = self.py_undoc[name]
                 if 'error' in undoc:
@@ -249,13 +242,12 @@ class CoverageBuilder(Builder):
                         op.write('Functions:\n')
                         op.writelines(' * %s\n' % x for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
-                            if self.app.quiet or self.app.warningiserror:
-                                for func in undoc['funcs']:
+                            for func in undoc['funcs']:
+                                if self.app.quiet or self.app.warningiserror:
                                     logger.warning(
                                         __('undocumented python function: %s :: %s'),
                                         name, func)
-                            else:
-                                for func in undoc['funcs']:
+                                else:
                                     logger.info(red('undocumented  ') + 'py  ' + 'function  ' +
                                                 '%-30s' % func + red(' - in module ') + name)
                         op.write('\n')
@@ -278,14 +270,13 @@ class CoverageBuilder(Builder):
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet or self.app.warningiserror:
-                                        for meth in methods:
+                                    for meth in methods:
+                                        if self.app.quiet or self.app.warningiserror:
                                             logger.warning(
                                                 __('undocumented python method:' +
                                                    ' %s :: %s :: %s'),
                                                 name, class_name, meth)
-                                    else:
-                                        for meth in methods:
+                                        else:
                                             logger.info(red('undocumented  ') + 'py  ' +
                                                         'method    ' + '%-30s' %
                                                         (class_name + '.' + meth) +

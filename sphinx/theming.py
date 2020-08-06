@@ -113,11 +113,7 @@ class Theme:
 
     def get_options(self, overrides: Dict[str, Any] = {}) -> Dict[str, Any]:
         """Return a dictionary of theme options and their values."""
-        if self.base:
-            options = self.base.get_options()
-        else:
-            options = {}
-
+        options = self.base.get_options() if self.base else {}
         try:
             options.update(self.config.items('options'))
         except configparser.NoSectionError:

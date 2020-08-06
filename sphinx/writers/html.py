@@ -42,9 +42,7 @@ logger = logging.getLogger(__name__)
 def multiply_length(length: str, scale: int) -> str:
     """Multiply *length* (width or height) by *scale*."""
     matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
-    if not matched:
-        return length
-    elif scale == 100:
+    if not matched or scale == 100:
         return length
     else:
         amount, unit = matched.groups()
@@ -173,8 +171,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.first_param = 1
         self.optional_param_level = 0
         # How many required parameters are left.
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.required_params_left = sum(
+            isinstance(c, addnodes.desc_parameter) for c in node.children
+        )
+
         self.param_separator = node.child_text_separator
 
     def depart_desc_parameterlist(self, node: Element) -> None:
@@ -565,20 +565,22 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         atts = {'class': 'reference download',
                 'download': ''}
 
-        if not self.builder.download_support:
+        if (
+            not self.builder.download_support
+            or 'refuri' not in node
+            and 'filename' not in node
+        ):
             self.context.append('')
         elif 'refuri' in node:
             atts['class'] += ' external'
             atts['href'] = node['refuri']
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
-        elif 'filename' in node:
+        else:
             atts['class'] += ' internal'
             atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
-        else:
-            self.context.append('')
 
     def depart_download_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
@@ -628,9 +630,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def depart_image(self, node: Element) -> None:
-        if node['uri'].lower().endswith(('svg', 'svgz')):
-            pass
-        else:
+        if not node['uri'].lower().endswith(('svg', 'svgz')):
             super().depart_image(node)
 
     def visit_toctree(self, node: Element) -> None:

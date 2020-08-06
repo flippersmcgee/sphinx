@@ -162,10 +162,7 @@ class BuildDoc(Command):
         # type: () -> None
         if not color_terminal():
             nocolor()
-        if not self.verbose:  # type: ignore
-            status_stream = StringIO()
-        else:
-            status_stream = sys.stdout  # type: ignore
+        status_stream = StringIO() if not self.verbose else sys.stdout
         confoverrides = {}  # type: Dict[str, Any]
         if self.project:
             confoverrides['project'] = self.project

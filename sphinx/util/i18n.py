@@ -120,12 +120,7 @@ class CatalogRepository:
 def find_catalog(docname: str, compaction: bool) -> str:
     warnings.warn('find_catalog() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
-    if compaction:
-        ret = docname.split(SEP, 1)[0]
-    else:
-        ret = docname
-
-    return ret
+    return docname.split(SEP, 1)[0] if compaction else docname
 
 
 def docname_to_domain(docname: str, compation: bool) -> str:
@@ -301,7 +296,7 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
         return filename
 
     filename_format = env.config.figure_language_filename
-    d = dict()
+    d = {}
     d['root'], d['ext'] = path.splitext(filename)
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):

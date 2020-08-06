@@ -346,10 +346,11 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if node.module == 'typing' and name.name == 'final':
-                self.typing_final = name.asname or name.name
-            elif node.module == 'typing' and name.name == 'overload':
-                self.typing_overload = name.asname or name.name
+            if node.module == 'typing':
+                if name.name == 'final':
+                    self.typing_final = name.asname or name.name
+                elif name.name == 'overload':
+                    self.typing_overload = name.asname or name.name
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
@@ -445,18 +446,20 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Handles FunctionDef node and set context."""
-        if self.current_function is None:
-            self.add_entry(node.name)  # should be called before setting self.current_function
-            if self.is_final(node.decorator_list):
-                self.add_final_entry(node.name)
-            if self.is_overload(node.decorator_list):
-                self.add_overload_entry(node)
-            self.context.append(node.name)
-            self.current_function = node
-            for child in node.body:
-                self.visit(child)
-            self.context.pop()
-            self.current_function = None
+        if self.current_function is not None:
+            return
+
+        self.add_entry(node.name)  # should be called before setting self.current_function
+        if self.is_final(node.decorator_list):
+            self.add_final_entry(node.name)
+        if self.is_overload(node.decorator_list):
+            self.add_overload_entry(node)
+        self.context.append(node.name)
+        self.current_function = node
+        for child in node.body:
+            self.visit(child)
+        self.context.pop()
+        self.current_function = None
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Handles AsyncFunctionDef node and set context."""

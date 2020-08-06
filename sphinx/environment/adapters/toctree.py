@@ -202,8 +202,7 @@ class TocTree:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
-                        if not (subtocnode.get('hidden', False) and
-                                not includehidden):
+                        if not subtocnode.get('hidden', False) or includehidden:
                             i = subtocnode.parent.index(subtocnode) + 1
                             for entry in _entries_from_toctree(
                                     subtocnode, [refdoc] + parents,

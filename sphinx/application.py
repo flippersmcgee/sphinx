@@ -180,16 +180,10 @@ class Sphinx:
             self._status = status
             self.quiet = False
 
-        if warning is None:
-            self._warning = StringIO()     # type: IO
-        else:
-            self._warning = warning
+        self._warning = StringIO() if warning is None else warning
         self._warncount = 0
         self.keep_going = warningiserror and keep_going
-        if self.keep_going:
-            self.warningiserror = False
-        else:
-            self.warningiserror = warningiserror
+        self.warningiserror = False if self.keep_going else warningiserror
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)

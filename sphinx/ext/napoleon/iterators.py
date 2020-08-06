@@ -51,10 +51,7 @@ class peek_iter:
         """__init__(o, sentinel=None)"""
         self._iterable = iter(*args)        # type: Iterable
         self._cache = collections.deque()   # type: collections.deque
-        if len(args) == 2:
-            self.sentinel = args[1]
-        else:
-            self.sentinel = object()
+        self.sentinel = args[1] if len(args) == 2 else object()
 
     def __iter__(self) -> "peek_iter":
         return self
@@ -113,10 +110,7 @@ class peek_iter:
         if not n:
             if self._cache[0] == self.sentinel:
                 raise StopIteration
-            if n is None:
-                result = self._cache.popleft()
-            else:
-                result = []
+            result = self._cache.popleft() if n is None else []
         else:
             if self._cache[n - 1] == self.sentinel:
                 raise StopIteration
@@ -144,11 +138,7 @@ class peek_iter:
 
         """
         self._fillcache(n)
-        if n is None:
-            result = self._cache[0]
-        else:
-            result = [self._cache[i] for i in range(n)]
-        return result
+        return self._cache[0] if n is None else [self._cache[i] for i in range(n)]
 
 
 class modify_iter(peek_iter):

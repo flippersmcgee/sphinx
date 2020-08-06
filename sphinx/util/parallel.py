@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+
 import os
 import platform
 import sys
@@ -31,9 +32,11 @@ logger = logging.getLogger(__name__)
 #
 # Note: "fork" is not recommended on macOS and py38+.
 #       see https://bugs.python.org/issue33725
-parallel_available = (multiprocessing and
-                      (os.name == 'posix') and
-                      not (sys.version_info > (3, 8) and platform.system() == 'Darwin'))
+parallel_available = (
+    multiprocessing
+    and os.name == 'posix'
+    and (sys.version_info <= (3, 8) or platform.system() != 'Darwin')
+)
 
 
 class SerialTasks:
@@ -43,10 +46,7 @@ class SerialTasks:
         pass
 
     def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
-        if arg is not None:
-            res = task_func(arg)
-        else:
-            res = task_func()
+        res = task_func(arg) if arg is not None else task_func()
         if result_func:
             result_func(res)
 
@@ -78,10 +78,7 @@ class ParallelTasks:
         try:
             collector = logging.LogCollector()
             with collector.collect():
-                if arg is None:
-                    ret = func()
-                else:
-                    ret = func(arg)
+                ret = func() if arg is None else func(arg)
             failed = False
         except BaseException as err:
             failed = True

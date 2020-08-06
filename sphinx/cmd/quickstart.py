@@ -126,7 +126,7 @@ def boolean(x: str) -> bool:
 
 
 def suffix(x: str) -> str:
-    if not (x[0:1] == '.' and len(x) > 1):
+    if x[0:1] != '.' or len(x) <= 1:
         raise ValidationError(__("Please enter a file suffix, e.g. '.rst' or '.txt'."))
     return x
 
@@ -229,11 +229,10 @@ def ask_user(d: Dict) -> None:
     print(__('Please enter values for the following settings (just press Enter to\n'
              'accept a default value, if one is given in brackets).'))
 
+    print()
     if 'path' in d:
-        print()
         print(bold(__('Selected root path: %s')) % d['path'])
     else:
-        print()
         print(__('Enter the root path for documentation.'))
         d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
@@ -459,10 +458,7 @@ def valid_dir(d: Dict) -> bool:
         d['dot'] + 'templates',
         d['master'] + d['suffix'],
     ]
-    if set(reserved_names) & set(os.listdir(dir)):
-        return False
-
-    return True
+    return not set(reserved_names) & set(os.listdir(dir))
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -574,11 +570,10 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
             d['extensions'].extend(ext.split(','))
 
     try:
-        if 'quiet' in d:
-            if not {'project', 'author'}.issubset(d):
-                print(__('"quiet" is specified, but any of "project" or '
-                         '"author" is not specified.'))
-                return 1
+        if 'quiet' in d and not {'project', 'author'}.issubset(d):
+            print(__('"quiet" is specified, but any of "project" or '
+                     '"author" is not specified.'))
+            return 1
 
         if {'quiet', 'project', 'author'}.issubset(d):
             # quiet mode with all required params satisfied, use default

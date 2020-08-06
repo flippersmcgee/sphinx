@@ -215,9 +215,9 @@ def _stringify_py36(annotation: Any) -> str:
         return '%s[%s, %s]' % (qualname,
                                args_str,
                                stringify(annotation.__result__))
-    elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
-          hasattr(annotation, '__tuple_params__') and
-          hasattr(annotation, '__tuple_use_ellipsis__')):  # for Python 3.5
+    elif isinstance(annotation, typing.TupleMeta) and hasattr(
+        annotation, '__tuple_use_ellipsis__'
+    ):  # for Python 3.5
         params = annotation.__tuple_params__
         if params is not None:
             param_strings = [stringify(p) for p in params]

@@ -154,5 +154,4 @@ class AutodocDirective(SphinxDirective):
         for fn in params.filename_set:
             self.state.document.settings.record_dependencies.add(fn)
 
-        result = parse_generated_content(self.state, params.result, documenter)
-        return result
+        return parse_generated_content(self.state, params.result, documenter)

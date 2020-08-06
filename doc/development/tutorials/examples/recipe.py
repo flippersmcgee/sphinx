@@ -121,8 +121,7 @@ class RecipeDomain(Domain):
         return '{}.{}'.format('recipe', node.arguments[0])
 
     def get_objects(self):
-        for obj in self.data['recipes']:
-            yield(obj)
+        yield from self.data['recipes']
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
@@ -130,7 +129,7 @@ class RecipeDomain(Domain):
                  for name, sig, typ, docname, anchor, prio
                  in self.get_objects() if sig == target]
 
-        if len(match) > 0:
+        if match:
             todocname = match[0][0]
             targ = match[0][1]
 

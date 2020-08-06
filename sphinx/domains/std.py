@@ -774,21 +774,21 @@ class StandardDomain(Domain):
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element) -> Element:
-        if typ == 'ref':
-            resolver = self._resolve_ref_xref
-        elif typ == 'numref':
-            resolver = self._resolve_numref_xref
-        elif typ == 'keyword':
-            resolver = self._resolve_keyword_xref
-        elif typ == 'doc':
-            resolver = self._resolve_doc_xref
-        elif typ == 'option':
-            resolver = self._resolve_option_xref
-        elif typ == 'citation':
+        if typ == 'citation':
             warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
                           RemovedInSphinx40Warning, stacklevel=2)
             domain = env.get_domain('citation')
             return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
+        elif typ == 'doc':
+            resolver = self._resolve_doc_xref
+        elif typ == 'keyword':
+            resolver = self._resolve_keyword_xref
+        elif typ == 'numref':
+            resolver = self._resolve_numref_xref
+        elif typ == 'option':
+            resolver = self._resolve_option_xref
+        elif typ == 'ref':
+            resolver = self._resolve_ref_xref
         elif typ == 'term':
             resolver = self._resolve_term_xref
         else:
@@ -1067,16 +1067,15 @@ class StandardDomain(Domain):
                 raise ValueError from exc
 
     def get_full_qualified_name(self, node: Element) -> str:
-        if node.get('reftype') == 'option':
-            progname = node.get('std:program')
-            command = ws_re.split(node.get('reftarget'))
-            if progname:
-                command.insert(0, progname)
-            option = command.pop()
-            if command:
-                return '.'.join(['-'.join(command), option])
-            else:
-                return None
+        if node.get('reftype') != 'option':
+            return None
+        progname = node.get('std:program')
+        command = ws_re.split(node.get('reftarget'))
+        if progname:
+            command.insert(0, progname)
+        option = command.pop()
+        if command:
+            return '.'.join(['-'.join(command), option])
         else:
             return None
 

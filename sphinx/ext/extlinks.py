@@ -50,10 +50,7 @@ def make_link_role(base_url: str, prefix: str) -> RoleFunction:
                 % (typ, base_url), line=lineno)
             full_url = base_url + part
         if not has_explicit_title:
-            if prefix is None:
-                title = full_url
-            else:
-                title = prefix + part
+            title = full_url if prefix is None else prefix + part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
     return role

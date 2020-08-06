@@ -428,9 +428,11 @@ class StandaloneHTMLBuilder(Builder):
                 domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
+                    if (
+                        isinstance(indices_config, list)
+                        and indexname not in indices_config
+                    ):
+                        continue
                     content, collapse = indexcls(domain).generate()
                     if content:
                         self.domain_indices.append(
@@ -825,7 +827,7 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
-                if not any((key in node) for key in ['scale', 'width', 'height']):
+                if all(key not in node for key in ['scale', 'width', 'height']):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue

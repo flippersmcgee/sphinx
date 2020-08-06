@@ -325,7 +325,7 @@ class LiteralIncludeReader:
 
                         return lines[lineno:]
 
-            if inclusive is True:
+            if inclusive:
                 raise ValueError('start-after pattern not found: %s' % start)
             else:
                 raise ValueError('start-at pattern not found: %s' % start)

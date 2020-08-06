@@ -1046,7 +1046,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.entry_sep = '@tab'
 
     def depart_entry(self, node: Element) -> None:
-        for i in range(node.get('morecols', 0)):
+        for _ in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     # -- Field Lists

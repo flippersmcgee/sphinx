@@ -303,10 +303,7 @@ class IndexBuilder:
         def load_terms(mapping: Dict[str, Any]) -> Dict[str, Set[str]]:
             rv = {}
             for k, v in mapping.items():
-                if isinstance(v, int):
-                    rv[k] = {index2fn[v]}
-                else:
-                    rv[k] = {index2fn[i] for i in v}
+                rv[k] = {index2fn[v]} if isinstance(v, int) else {index2fn[i] for i in v}
             return rv
 
         self._mapping = load_terms(frozen['terms'])

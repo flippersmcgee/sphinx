@@ -159,11 +159,7 @@ class ModuleAnalyzer:
 
             self.attr_docs = OrderedDict()
             for (scope, comment) in parser.comments.items():
-                if comment:
-                    self.attr_docs[scope] = comment.splitlines() + ['']
-                else:
-                    self.attr_docs[scope] = ['']
-
+                self.attr_docs[scope] = comment.splitlines() + [''] if comment else ['']
             self.annotations = parser.annotations
             self.finals = parser.finals
             self.overloads = parser.overloads

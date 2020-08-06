@@ -212,14 +212,13 @@ def collect_pages(app: Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]:
     stack = ['']
     for modname in sorted(modnames):
         if modname.startswith(stack[-1]):
-            stack.append(modname + '.')
             html.append('<ul>')
         else:
             stack.pop()
             while not modname.startswith(stack[-1]):
                 stack.pop()
                 html.append('</ul>')
-            stack.append(modname + '.')
+        stack.append(modname + '.')
         html.append('<li><a href="%s">%s</a></li>\n' % (
             urito('_modules/index', '_modules/' + modname.replace('.', '/')),
             modname))

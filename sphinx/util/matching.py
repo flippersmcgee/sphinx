@@ -29,13 +29,13 @@ def _translate_pattern(pat: str) -> str:
             if i < n and pat[i] == '*':
                 # double star matches slashes too
                 i += 1
-                res = res + '.*'
+                res += '.*'
             else:
                 # single star doesn't match slashes
-                res = res + '[^/]*'
+                res += '[^/]*'
         elif c == '?':
             # question mark doesn't match slashes too
-            res = res + '[^/]'
+            res += '[^/]'
         elif c == '[':
             j = i
             if j < n and pat[j] == '!':
@@ -45,7 +45,7 @@ def _translate_pattern(pat: str) -> str:
             while j < n and pat[j] != ']':
                 j += 1
             if j >= n:
-                res = res + '\\['
+                res += '\\['
             else:
                 stuff = pat[i:j].replace('\\', '\\\\')
                 i = j + 1

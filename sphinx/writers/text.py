@@ -162,9 +162,10 @@ class Table:
         ``self.colwidth`` or ``self.measured_widths``).
         This take into account cells spanning on multiple columns.
         """
-        width = 0
-        for i in range(self[cell.row, cell.col].colspan):
-            width += source[cell.col + i]
+        width = sum(
+            source[cell.col + i] for i in range(self[cell.row, cell.col].colspan)
+        )
+
         return width + (cell.colspan - 1) * 3
 
     @property
@@ -278,11 +279,7 @@ class TextWrapper(textwrap.TextWrapper):
             cur_line = []
             cur_len = 0
 
-            if lines:
-                indent = self.subsequent_indent
-            else:
-                indent = self.initial_indent
-
+            indent = self.subsequent_indent if lines else self.initial_indent
             width = self.width - column_width(indent)
 
             if self.drop_whitespace and chunks[-1].strip() == '' and lines:
@@ -511,10 +508,7 @@ class TextTranslator(SphinxTranslator):
         return ''
 
     def depart_title(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.section):
-            char = self._title_char
-        else:
-            char = '^'
+        char = self._title_char if isinstance(node.parent, nodes.section) else '^'
         text = ''
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
         if self.add_secnumbers:
@@ -829,9 +823,7 @@ class TextTranslator(SphinxTranslator):
     def depart_list_item(self, node: Element) -> None:
         if self.list_counter[-1] == -1:
             self.end_state(first='* ')
-        elif self.list_counter[-1] == -2:
-            pass
-        else:
+        elif self.list_counter[-1] != -2:
             self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node: Element) -> None:

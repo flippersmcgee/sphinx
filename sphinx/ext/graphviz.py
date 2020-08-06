@@ -230,9 +230,11 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
 
     ensuredir(path.dirname(outfn))
 
-    dot_args = [graphviz_dot]
-    dot_args.extend(self.builder.config.graphviz_dot_args)
-    dot_args.extend(['-T' + format, '-o' + outfn])
+    dot_args = [
+        graphviz_dot,
+        *self.builder.config.graphviz_dot_args,
+        *['-T' + format, '-o' + outfn],
+    ]
 
     docname = options.get('docname', 'index')
     cwd = path.dirname(path.join(self.builder.srcdir, docname))

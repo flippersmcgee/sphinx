@@ -132,16 +132,16 @@ class JSObject(ObjectDescription):
 
     def get_index_text(self, objectname: str, name_obj: Tuple[str, str]) -> str:
         name, obj = name_obj
-        if self.objtype == 'function':
-            if not obj:
-                return _('%s() (built-in function)') % name
-            return _('%s() (%s method)') % (name, obj)
+        if self.objtype == 'attribute':
+            return _('%s (%s attribute)') % (name, obj)
         elif self.objtype == 'class':
             return _('%s() (class)') % name
         elif self.objtype == 'data':
             return _('%s (global variable or constant)') % name
-        elif self.objtype == 'attribute':
-            return _('%s (%s attribute)') % (name, obj)
+        elif self.objtype == 'function':
+            if not obj:
+                return _('%s() (built-in function)') % name
+            return _('%s() (%s method)') % (name, obj)
         return ''
 
     def before_content(self) -> None:

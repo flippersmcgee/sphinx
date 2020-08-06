@@ -22,8 +22,7 @@ DUMMY_CONFIG = Config({}, {})
 
 @pytest.fixture(scope='module')
 def testroot(rootdir):
-    testroot_path = rootdir / 'test-directive-code'
-    return testroot_path
+    return rootdir / 'test-directive-code'
 
 
 @pytest.fixture(scope='module')

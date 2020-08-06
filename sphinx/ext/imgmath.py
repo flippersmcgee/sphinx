@@ -94,7 +94,7 @@ def read_svg_depth(filename: str) -> int:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, 'r') as f:
-        for line in f:
+        for _ in f:
             pass
         # Only last line is checked
         matched = depthsvgcomment_re.match(line)
@@ -194,8 +194,16 @@ def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, int]:
     filename = path.join(tempdir, 'math.png')
 
     name = 'dvipng'
-    command = [builder.config.imgmath_dvipng, '-o', filename, '-T', 'tight', '-z9']
-    command.extend(builder.config.imgmath_dvipng_args)
+    command = [
+        builder.config.imgmath_dvipng,
+        '-o',
+        filename,
+        '-T',
+        'tight',
+        '-z9',
+        *builder.config.imgmath_dvipng_args,
+    ]
+
     if builder.config.imgmath_use_preview:
         command.append('--depth')
     command.append(dvipath)
@@ -220,9 +228,13 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, int]:
     filename = path.join(tempdir, 'math.svg')
 
     name = 'dvisvgm'
-    command = [builder.config.imgmath_dvisvgm, '-o', filename]
-    command.extend(builder.config.imgmath_dvisvgm_args)
-    command.append(dvipath)
+    command = [
+        builder.config.imgmath_dvisvgm,
+        '-o',
+        filename,
+        *builder.config.imgmath_dvisvgm_args,
+        dvipath,
+    ]
 
     stdout, stderr = convert_dvi_to_image(command, name)
 

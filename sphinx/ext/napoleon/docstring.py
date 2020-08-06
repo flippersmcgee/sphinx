@@ -141,10 +141,7 @@ class GoogleDocstring:
         self._name = name
         self._obj = obj
         self._opt = options
-        if isinstance(docstring, str):
-            lines = docstring.splitlines()
-        else:
-            lines = docstring
+        lines = docstring.splitlines() if isinstance(docstring, str) else docstring
         self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
         self._parsed_lines = []  # type: List[str]
         self._is_in_section = False
@@ -287,11 +284,7 @@ class GoogleDocstring:
             _name, _type, _desc = '', '', lines
 
             if colon:
-                if after:
-                    _desc = [after] + lines[1:]
-                else:
-                    _desc = lines[1:]
-
+                _desc = [after] + lines[1:] if after else lines[1:]
                 _type = before
 
             _desc = self.__class__(_desc, self._config).lines()
@@ -300,8 +293,7 @@ class GoogleDocstring:
             return []
 
     def _consume_usage_section(self) -> List[str]:
-        lines = self._dedent(self._consume_to_next_section())
-        return lines
+        return self._dedent(self._consume_to_next_section())
 
     def _consume_section_header(self) -> str:
         section = next(self._line_iter)
@@ -365,20 +357,19 @@ class GoogleDocstring:
             return ['.. %s::' % admonition, '']
 
     def _format_block(self, prefix: str, lines: List[str], padding: str = None) -> List[str]:
-        if lines:
-            if padding is None:
-                padding = ' ' * len(prefix)
-            result_lines = []
-            for i, line in enumerate(lines):
-                if i == 0:
-                    result_lines.append((prefix + line).rstrip())
-                elif line:
-                    result_lines.append(padding + line)
-                else:
-                    result_lines.append('')
-            return result_lines
-        else:
+        if not lines:
             return [prefix]
+        if padding is None:
+            padding = ' ' * len(prefix)
+        result_lines = []
+        for i, line in enumerate(lines):
+            if i == 0:
+                result_lines.append((prefix + line).rstrip())
+            elif line:
+                result_lines.append(padding + line)
+            else:
+                result_lines.append('')
+        return result_lines
 
     def _format_docutils_params(self, fields: List[Tuple[str, str, List[str]]],
                                 field_role: str = 'param', type_role: str = 'type'
@@ -703,11 +694,7 @@ class GoogleDocstring:
     def _parse_returns_section(self, section: str) -> List[str]:
         fields = self._consume_returns_section()
         multi = len(fields) > 1
-        if multi:
-            use_rtype = False
-        else:
-            use_rtype = self._config.napoleon_use_rtype
-
+        use_rtype = False if multi else self._config.napoleon_use_rtype
         lines = []  # type: List[str]
         for _name, _type, _desc in fields:
             if use_rtype:

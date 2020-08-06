@@ -48,8 +48,7 @@ class PorterStemmer:
 
     def cons(self, i: int) -> int:
         """cons(i) is TRUE <=> b[i] is a consonant."""
-        if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' \
-           or self.b[i] == 'o' or self.b[i] == 'u':
+        if self.b[i] in ['a', 'e', 'i', 'o', 'u']:
             return 0
         if self.b[i] == 'y':
             if i == self.k0:
@@ -86,7 +85,7 @@ class PorterStemmer:
                     break
                 i = i + 1
             i = i + 1
-            n = n + 1
+            n += 1
             while 1:
                 if i > self.j:
                     return n
@@ -123,7 +122,7 @@ class PorterStemmer:
            or not self.cons(i - 2):
             return 0
         ch = self.b[i]
-        if ch == 'w' or ch == 'x' or ch == 'y':
+        if ch in ['w', 'x', 'y']:
             return 0
         return 1
 
@@ -193,7 +192,7 @@ class PorterStemmer:
             elif self.doublec(self.k):
                 self.k = self.k - 1
                 ch = self.b[self.k]
-                if ch == 'l' or ch == 's' or ch == 'z':
+                if ch in ['l', 's', 'z']:
                     self.k = self.k + 1
             elif (self.m() == 1 and self.cvc(self.k)):
                 self.setto("e")

@@ -338,10 +338,7 @@ def is_excluded(root: str, excludes: List[str]) -> bool:
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    for exclude in excludes:
-        if fnmatch(root, exclude):
-            return True
-    return False
+    return any(fnmatch(root, exclude) for exclude in excludes)
 
 
 def get_parser() -> argparse.ArgumentParser:

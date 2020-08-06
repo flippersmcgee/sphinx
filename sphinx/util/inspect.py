@@ -195,20 +195,16 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
         for basecls in getattr(cls, '__mro__', [cls]):
             meth = basecls.__dict__.get(name)
             if meth:
-                if isinstance(meth, staticmethod):
-                    return True
-                else:
-                    return False
-
+                return isinstance(meth, staticmethod)
     return False
 
 
 def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
-    for item in '__get__', '__set__', '__delete__':
-        if hasattr(safe_getattr(x, item, None), '__call__'):
-            return True
-    return False
+    return any(
+        hasattr(safe_getattr(x, item, None), '__call__')
+        for item in ('__get__', '__set__', '__delete__')
+    )
 
 
 def isabstractmethod(obj: Any) -> bool:
@@ -257,13 +253,10 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def is_singledispatch_function(obj: Any) -> bool:
     """Check if the object is singledispatch function."""
-    if (inspect.isfunction(obj) and
+    return bool((inspect.isfunction(obj) and
             hasattr(obj, 'dispatch') and
             hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools'):
-        return True
-    else:
-        return False
+            obj.dispatch.__module__ == 'functools'))
 
 
 def is_singledispatch_method(obj: Any) -> bool:
@@ -577,9 +570,11 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         # PEP-570: Separator for Positional Only Parameter: /
         args.append('/')
 
-    if (sig.return_annotation is Parameter.empty or
-            show_annotation is False or
-            show_return_annotation is False):
+    if (
+        sig.return_annotation is Parameter.empty
+        or not show_annotation
+        or not show_return_annotation
+    ):
         return '(%s)' % ', '.join(args)
     else:
         annotation = stringify_annotation(sig.return_annotation)

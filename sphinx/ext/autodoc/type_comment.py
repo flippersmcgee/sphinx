@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 def not_suppressed(argtypes: List[ast.AST] = []) -> bool:
     """Check given *argtypes* is suppressed type_comment or not."""
-    if len(argtypes) == 0:  # no argtypees
+    if not argtypes:  # no argtypees
         return False
     elif len(argtypes) == 1 and ast_unparse(argtypes[0]) == "...":  # suppressed
         # Note: To support multiple versions of python, this uses ``ast_unparse()`` for

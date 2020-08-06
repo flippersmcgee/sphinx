@@ -394,11 +394,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
     # keep track of new files
     new_files = []
 
-    if app:
-        filename_map = app.config.autosummary_filename_map
-    else:
-        filename_map = {}
-
+    filename_map = app.config.autosummary_filename_map if app else {}
     # write
     for entry in sorted(set(items), key=str):
         if entry.path is None:

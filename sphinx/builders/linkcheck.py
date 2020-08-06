@@ -105,7 +105,7 @@ class CheckExternalLinksBuilder(Builder):
         self.wqueue = queue.Queue()  # type: queue.Queue
         self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
-        for i in range(self.app.config.linkcheck_workers):
+        for _ in range(self.app.config.linkcheck_workers):
             thread = threading.Thread(target=self.check_thread)
             thread.setDaemon(True)
             thread.start()
@@ -342,11 +342,8 @@ class CheckExternalLinksBuilder(Builder):
                 self.wqueue.put((uri, docname, lineno), False)
                 n += 1
 
-        done = 0
-        while done < n:
+        for _ in range(n):
             self.process_result(self.rqueue.get())
-            done += 1
-
         if self.broken:
             self.app.statuscode = 1
 
@@ -361,7 +358,7 @@ class CheckExternalLinksBuilder(Builder):
             output.write('\n')
 
     def finish(self) -> None:
-        for worker in self.workers:
+        for _ in self.workers:
             self.wqueue.put((None, None, None), False)
 
 

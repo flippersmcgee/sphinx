@@ -83,10 +83,7 @@ class MecabSplitter(BaseSplitter):
         lib = options.get('lib')
 
         if lib is None:
-            if sys.platform.startswith('win'):
-                libname = 'libmecab.dll'
-            else:
-                libname = 'mecab'
+            libname = 'libmecab.dll' if sys.platform.startswith('win') else 'mecab'
             libpath = ctypes.util.find_library(libname)
         elif os.path.basename(lib) == lib:
             libpath = ctypes.util.find_library(lib)

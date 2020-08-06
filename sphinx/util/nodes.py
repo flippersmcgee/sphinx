@@ -77,13 +77,14 @@ class NodeMatcher:
                     return False
 
                 for key, value in self.attrs.items():
-                    if key not in node:
+                    if (
+                        key not in node
+                        or value is not Any
+                        and node.get(key) != value
+                    ):
                         return False
                     elif value is Any:
                         continue
-                    elif node.get(key) != value:
-                        return False
-
             return True
         except Exception:
             # for non-Element nodes
@@ -129,16 +130,17 @@ def apply_source_workaround(node: Element) -> None:
     # * when ``term text : classifier1 : classifier2`` is specified,
     # * rawsource of term node will have: ``term text : classifier1 : classifier2``
     # * rawsource of classifier node will be None
-    if isinstance(node, nodes.classifier) and not node.rawsource:
-        logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
-                     get_full_module_name(node), repr_domxml(node))
-        definition_list_item = node.parent
-        node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1
-        node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
-    elif isinstance(node, nodes.classifier) and not node.source:
-        # docutils-0.15 fills in rawsource attribute, but not in source.
-        node.source = node.parent.source
+    if isinstance(node, nodes.classifier):
+        if not node.rawsource:
+            logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
+                         get_full_module_name(node), repr_domxml(node))
+            definition_list_item = node.parent
+            node.source = definition_list_item.source
+            node.line = definition_list_item.line - 1
+            node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+        elif not node.source:
+            # docutils-0.15 fills in rawsource attribute, but not in source.
+            node.source = node.parent.source
     if isinstance(node, nodes.image) and node.source is None:
         logger.debug('[i18n] PATCH: %r to have source, line: %s',
                      get_full_module_name(node), repr_domxml(node))
@@ -190,11 +192,8 @@ IGNORED_NODES = (
 
 
 def is_pending_meta(node: Node) -> bool:
-    if (isinstance(node, nodes.pending) and
-       isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
-        return True
-    else:
-        return False
+    return (isinstance(node, nodes.pending) and
+       isinstance(node.details.get('nodes', [None])[0], addnodes.meta))
 
 
 def is_translatable(node: Node) -> bool:
@@ -315,13 +314,10 @@ def get_prev_node(node: Node) -> Node:
         return None
 
 
-def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List["IndexEntry"]]]:  # NOQA
+def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List["IndexEntry"]]]:    # NOQA
     """Traverse translatable index node from a document tree."""
     for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
-        if 'raw_entries' in node:
-            entries = node['raw_entries']
-        else:
-            entries = node['entries']
+        entries = node['raw_entries'] if 'raw_entries' in node else node['entries']
         yield node, entries
 
 

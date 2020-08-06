@@ -265,8 +265,8 @@ def save_traceback(app: "Sphinx") -> str:
                    last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():
-            modfile = getattr(ext.module, '__file__', 'unknown')
             if ext.version != 'builtin':
+                modfile = getattr(ext.module, '__file__', 'unknown')
                 os.write(fd, ('#   %s (%s) from %s\n' %
                               (ext.name, ext.version, modfile)).encode())
     os.write(fd, exc_format.encode())
@@ -439,7 +439,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
-    items = list()
+    items = []
     parts = spec.split(',')
     for part in parts:
         try:
@@ -514,19 +514,17 @@ def split_into(n: int, type: str, value: str) -> List[str]:
 
 def split_index_msg(type: str, value: str) -> List[str]:
     # new entry types must be listed in directives/other.py!
-    if type == 'single':
+    if type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type in ['see', 'seealso']:
+        result = split_into(2, 'see', value)
+    elif type == 'single':
         try:
             result = split_into(2, 'single', value)
         except ValueError:
             result = split_into(1, 'single', value)
-    elif type == 'pair':
-        result = split_into(2, 'pair', value)
     elif type == 'triple':
         result = split_into(3, 'triple', value)
-    elif type == 'see':
-        result = split_into(2, 'see', value)
-    elif type == 'seealso':
-        result = split_into(2, 'see', value)
     else:
         raise ValueError('invalid %s index entry %r' % (type, value))
 
@@ -635,7 +633,7 @@ def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode(), '/')
-    query = list((q, v.encode()) for (q, v) in parse_qsl(split[3]))
+    query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
     split[3] = urlencode(query)
     return urlunsplit(split)
 
